@@ -1,15 +1,6 @@
 services:
-  - type: web
+  - type: worker
     name: telegram-relay-bot
     env: python
     buildCommand: ""
     startCommand: python main.py
-    envVars:
-      - key: API_ID
-        sync: false
-      - key: API_HASH
-        sync: false
-      - key: CHANNEL_FROM
-        sync: false
-      - key: CHANNEL_TO
-        sync: false
