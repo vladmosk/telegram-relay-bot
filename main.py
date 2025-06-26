@@ -1,7 +1,6 @@
 import asyncio
 import nest_asyncio
 from telethon import TelegramClient, events
-from datetime import datetime, timedelta
 
 nest_asyncio.apply()
 
@@ -29,15 +28,11 @@ async def main():
     await client.start()
     print("📡 Бот подключен и слушает канал...")
 
-    # --- Чтение сообщений за последний час ---
-    async for message in client.iter_messages(source_chat, offset_date=datetime.now() - timedelta(hours=1)):
-        if message.text and any(k in message.text.lower() for k in keywords):
-            await client.send_message(target_chat_id, f'🔔 Старое сообщение (за час):\n\n{message.text}')
-
     @client.on(events.NewMessage(chats=source_chat))
     async def handler(event):
-        if event.message.message and any(k in event.message.message.lower() for k in keywords):
-            await client.send_message(target_chat_id, f'🔔 Новое сообщение:\n\n{event.message.message}')
+        text = event.message.message
+        if text and any(k in text.lower() for k in keywords):
+            await client.send_message(target_chat_id, f'🔔 Новое сообщение:\n\n{text}')
 
     await client.run_until_disconnected()
 
