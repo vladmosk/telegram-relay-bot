@@ -14,7 +14,7 @@ load_dotenv()
 api_id = int(os.getenv('API_ID'))
 api_hash = os.getenv('API_HASH')
 session_file = 'session.session'
-client = TelegramClient(session_file, api_id, api_hash)
+client = TelegramClient("/mnt/data/session", api_id, api_hash)
 
 # Чаты
 target_chat_id = -1002712861852
