@@ -1,2 +1,4 @@
 telethon
 nest_asyncio
+python-dotenv
+
