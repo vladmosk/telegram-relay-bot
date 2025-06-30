@@ -10,21 +10,18 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 log = logging.getLogger("relay-bot")
 
-# Поддержка повторного запуска (например, в Jupyter)
+# Поддержка повторного запуска
 nest_asyncio.apply()
 
 # Загружаем переменные окружения
 load_dotenv()
 
-# Конфигурация из .env
+# Конфигурация
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 STRING_SESSION = os.getenv("STRING_SESSION")
-SOURCE_CHAT_ID = int(os.getenv("SOURCE_CHAT_ID"))  # например, -1002050105527
+SOURCE_CHAT = os.getenv("SOURCE_CHAT")  # строка: ID или username
 TARGET_CHAT_ID = int(os.getenv("TARGET_CHAT_ID"))
-
-# Клиент через StringSession
-client = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
 
 # Категории и ключевые слова
 CATEGORIES = {
@@ -53,32 +50,31 @@ CATEGORIES = {
     ]
 }
 
-# Определяем категорию по ключевым словам
-def detect_category(text: str) -> str:
+# Функция для определения категории
+def detect_category(text: str) -> str | None:
     text_lower = text.lower()
     for category, keywords in CATEGORIES.items():
         for keyword in keywords:
             if keyword in text_lower:
                 return category
-    return None  # Без категории — не пересылаем
+    return None
 
 # Основной запуск
 async def main():
     log.info("🚀 Запуск main()...")
+    client = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
     await client.start()
     log.info("📡 Бот подключен и слушает канал...")
 
-    @client.on(events.NewMessage(chats=SOURCE_CHAT_ID))
+    @client.on(events.NewMessage(chats=SOURCE_CHAT))
     async def handler(event):
         text = event.message.message
         if text:
-            prefix = detect_category(text)
-            if prefix:
-                final_message = f"{prefix}:\n\n{text}"
+            category = detect_category(text)
+            if category:
+                final_message = f"{category}:\n\n{text}"
                 await client.send_message(TARGET_CHAT_ID, final_message)
-                log.info(f"📤 Переслано сообщение в категорию {prefix}")
-            else:
-                log.info("📎 Сообщение пропущено — не содержит ключевых слов")
+                log.info(f"📤 Переслано сообщение в {TARGET_CHAT_ID}")
 
     await client.run_until_disconnected()
 
