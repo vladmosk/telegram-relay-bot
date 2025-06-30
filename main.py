@@ -4,6 +4,12 @@ from dotenv import load_dotenv
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 import nest_asyncio
+import logging
+
+# Настраиваем логгер
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+log = logging.getLogger("relay-bot")
+
 
 # Поддержка повторного запуска (например, в Jupyter)
 nest_asyncio.apply()
