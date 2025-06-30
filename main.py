@@ -55,9 +55,9 @@ def detect_category(text: str) -> str:
 
 # Основной запуск
 async def main():
-    print("🚀 Запуск main()...")
+    log.info("🚀 Запуск main()...")
     await client.start()
-    print("📡 Бот подключен и слушает канал...")
+    log.info("📡 Бот подключен и слушает канал...")
 
     @client.on(events.NewMessage(chats=SOURCE_CHAT))
     async def handler(event):
