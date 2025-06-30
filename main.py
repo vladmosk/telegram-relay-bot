@@ -20,7 +20,7 @@ load_dotenv()
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 STRING_SESSION = os.getenv("STRING_SESSION")
-SOURCE_CHAT = os.getenv("SOURCE_CHAT")  # строка: ID или username
+SOURCE_CHAT_ID = os.getenv("SOURCE_CHAT_ID")  # строка: ID или username
 TARGET_CHAT_ID = int(os.getenv("TARGET_CHAT_ID"))
 
 # Категории и ключевые слова
@@ -66,7 +66,7 @@ async def main():
     await client.start()
     log.info("📡 Бот подключен и слушает канал...")
 
-    @client.on(events.NewMessage(chats=SOURCE_CHAT))
+    @client.on(events.NewMessage(chats=SOURCE_CHAT_ID))
     async def handler(event):
         text = event.message.message
         if text:
