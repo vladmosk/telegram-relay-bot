@@ -20,8 +20,15 @@ load_dotenv()
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 STRING_SESSION = os.getenv("STRING_SESSION")
-SOURCE_CHAT_ID = os.getenv("SOURCE_CHAT_ID")  # строка: ID или username
+
+# Обработка SOURCE_CHAT_ID — строка или число
+source = os.getenv("SOURCE_CHAT_ID")
+SOURCE_CHAT_ID = source if source.startswith("@") else int(source)
+log.info(f"🧾 SOURCE_CHAT_ID: {SOURCE_CHAT_ID}")
+
+# Обработка TARGET_CHAT_ID
 TARGET_CHAT_ID = int(os.getenv("TARGET_CHAT_ID"))
+log.info(f"🧾 TARGET_CHAT_ID: {TARGET_CHAT_ID}")
 
 # Категории и ключевые слова
 CATEGORIES = {
@@ -69,6 +76,7 @@ async def main():
     @client.on(events.NewMessage(chats=SOURCE_CHAT_ID))
     async def handler(event):
         text = event.message.message
+        log.info(f"📥 Получено сообщение: {text}")
         if text:
             category = detect_category(text)
             if category:
