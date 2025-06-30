@@ -1,8 +1,9 @@
 import asyncio
-import nest_asyncio
-from telethon import TelegramClient, events
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+from telethon import TelegramClient, events
+from telethon.sessions import StringSession
+import nest_asyncio
 
 # Поддержка повторного запуска (например, в Jupyter)
 nest_asyncio.apply()
@@ -10,15 +11,15 @@ nest_asyncio.apply()
 # Загружаем переменные окружения
 load_dotenv()
 
-# Конфигурация
-api_id = int(os.getenv('API_ID'))
-api_hash = os.getenv('API_HASH')
-session_file = 'session.session'
-client = TelegramClient("/mnt/data/session", api_id, api_hash)
+# Конфигурация из .env
+API_ID = int(os.getenv("API_ID"))
+API_HASH = os.getenv("API_HASH")
+STRING_SESSION = os.getenv("STRING_SESSION")
+SOURCE_CHAT = os.getenv("SOURCE_CHAT")  # @канал или ID
+TARGET_CHAT_ID = int(os.getenv("TARGET_CHAT_ID"))
 
-# Чаты
-target_chat_id = -1002712861852
-source_chat = '@TOPOVHELP'
+# Клиент через StringSession
+client = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
 
 # Категории и ключевые слова
 CATEGORIES = {
@@ -58,13 +59,13 @@ async def main():
     await client.start()
     print("📡 Бот подключен и слушает канал...")
 
-    @client.on(events.NewMessage(chats=source_chat))
+    @client.on(events.NewMessage(chats=SOURCE_CHAT))
     async def handler(event):
         text = event.message.message
         if text:
             prefix = detect_category(text)
             final_message = f"{prefix}:\n\n{text}"
-            await client.send_message(target_chat_id, final_message)
+            await client.send_message(TARGET_CHAT_ID, final_message)
 
     await client.run_until_disconnected()
 
