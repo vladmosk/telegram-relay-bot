@@ -18,8 +18,10 @@ load_dotenv()
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 STRING_SESSION = os.getenv("STRING_SESSION")
-SOURCE_CHAT_ID = os.getenv("SOURCE_CHAT_ID")  # Например: @TOPOVHELP
-TARGET_CHAT_ID = int(os.getenv("TARGET_CHAT_ID"))  # Например: -100...
+TARGET_CHAT_ID = int(os.getenv("TARGET_CHAT_ID"))
+
+# Жёстко указываем нужный канал: ТОТ САМЫЙ — ТОПОВХЕЛП
+SOURCE_CHANNEL_ID = -1002050105527
 
 # Создание клиента
 client = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
@@ -27,22 +29,20 @@ client = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
 async def setup():
     await client.start()
     log.info("✅ Клиент успешно запущен")
-
-    source_entity = await client.get_entity(SOURCE_CHAT_ID)
-    source_id = source_entity.id
-    log.info(f"📡 SOURCE_CHAT_ID entity: {source_id}")
+    log.info(f"📡 Слушаем только канал ID: {SOURCE_CHANNEL_ID}")
+    log.info("🟢 Бот работает, ожидает новые сообщения...")
 
     @client.on(events.NewMessage)
     async def handler(event):
-        text = event.message.message
-        chat_id = event.chat_id
-        if text:
-            log.info(f"⚡ Поймано сообщение из {chat_id}: {text[:80]}")
-            if chat_id == -100 * source_id:
-                await client.send_message(TARGET_CHAT_ID, text)
-                log.info(f"📤 Переслано сообщение в {TARGET_CHAT_ID}")
+        if event.chat_id != SOURCE_CHANNEL_ID:
+            return  # игнорируем всё, кроме нужного канала
 
-    log.info("🟢 Бот работает, ожидает новые сообщения...")
+        text = event.message.message
+        if text:
+            log.info(f"📥 Получено сообщение: {text[:80]}")
+            await client.send_message(TARGET_CHAT_ID, text)
+            log.info(f"📤 Переслано сообщение в {TARGET_CHAT_ID}")
+
     await client.run_until_disconnected()
 
 # Запуск
