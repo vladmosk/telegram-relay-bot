@@ -14,3 +14,6 @@ async def main():
             log.info(f"📥 Найдено сообщение: {msg.text[:100]}")
             await client.send_message(TARGET_CHAT_ID, msg.text)
             log.info(f"📤 Переслано в {TARGET_CHAT_ID}")
+
+    log.info("🕓 Завершен просмотр 5 сообщений. Переходим в ожидание...")
+    await client.run_until_disconnected()
