@@ -29,15 +29,18 @@ async def setup():
     log.info("✅ Клиент успешно запущен")
 
     source_entity = await client.get_entity(SOURCE_CHAT_ID)
-    log.info(f"📡 SOURCE_CHAT_ID entity: {source_entity.id}")
+    source_id = source_entity.id
+    log.info(f"📡 SOURCE_CHAT_ID entity: {source_id}")
 
-    @client.on(events.NewMessage(chats=source_entity))
+    @client.on(events.NewMessage)
     async def handler(event):
         text = event.message.message
+        chat_id = event.chat_id
         if text:
-            log.info(f"📥 Получено сообщение: {text[:100]}")
-            await client.send_message(TARGET_CHAT_ID, text)
-            log.info(f"📤 Переслано в {TARGET_CHAT_ID}")
+            log.info(f"⚡ Поймано сообщение из {chat_id}: {text[:80]}")
+            if str(chat_id) == str(source_id) or str(chat_id).endswith(str(source_id)):
+                await client.send_message(TARGET_CHAT_ID, text)
+                log.info(f"📤 Переслано сообщение в {TARGET_CHAT_ID}")
 
     log.info("🟢 Бот работает, ожидает новые сообщения...")
     await client.run_until_disconnected()
