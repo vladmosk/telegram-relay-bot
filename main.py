@@ -38,7 +38,7 @@ async def setup():
         chat_id = event.chat_id
         if text:
             log.info(f"⚡ Поймано сообщение из {chat_id}: {text[:80]}")
-            if str(chat_id) == str(source_id) or str(chat_id).endswith(str(source_id)):
+            if chat_id == -100 * source_id:
                 await client.send_message(TARGET_CHAT_ID, text)
                 log.info(f"📤 Переслано сообщение в {TARGET_CHAT_ID}")
 
