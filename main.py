@@ -10,34 +10,28 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 log = logging.getLogger("relay-bot")
 
-# Поддержка повторного запуска
 nest_asyncio.apply()
-
-# Загрузка переменных окружения
 load_dotenv()
 
-# Конфигурация
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 STRING_SESSION = os.getenv("STRING_SESSION")
-
-# Обработка SOURCE_CHAT_ID
-source = os.getenv("SOURCE_CHAT_ID")
-SOURCE_CHAT_ID = source if source.startswith("@") else int(source)
-log.info(f"🧾 SOURCE_CHAT_ID: {SOURCE_CHAT_ID}")
-
-# Обработка TARGET_CHAT_ID
 TARGET_CHAT_ID = int(os.getenv("TARGET_CHAT_ID"))
-log.info(f"🧾 TARGET_CHAT_ID: {TARGET_CHAT_ID}")
 
 # Основной запуск
 async def main():
     log.info("🚀 Запуск main()...")
     client = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
     await client.start()
+
+    # Получаем entity канала явно
+    source_username = os.getenv("SOURCE_CHAT_ID")
+    source_entity = await client.get_entity(source_username)
+    log.info(f"✅ SOURCE_CHAT_ID resolved to entity: {source_entity.id}")
+
     log.info("📡 Бот подключен и слушает канал...")
 
-    @client.on(events.NewMessage(chats=SOURCE_CHAT_ID))
+    @client.on(events.NewMessage(chats=source_entity))
     async def handler(event):
         text = event.message.message
         log.info(f"📥 Получено сообщение: {text}")
@@ -47,5 +41,4 @@ async def main():
 
     await client.run_until_disconnected()
 
-# Запуск
 asyncio.run(main())
